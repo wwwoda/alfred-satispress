@@ -44,7 +44,7 @@ const fetch = async (): Promise<SatispressResponse | false > => {
   return Promise.resolve(response);
 };
 
-const getItems = async (): Promise<ScriptFilterItem[]> => {
+const getItems = async (): Promise<ScriptFilterItem[] | null> => {
   const cachedItems = cache.get(CACHE_KEY_ITEMS, []);
 
   if (cachedItems && cachedItems.length) {
@@ -54,7 +54,7 @@ const getItems = async (): Promise<ScriptFilterItem[]> => {
   const data = await fetch();
 
   if (data === false) {
-    process.exit(1);
+    return Promise.resolve(null);
   }
 
   const scriptFilterItems = sortOn(Object.keys(data.packages).map((key) => {
@@ -72,6 +72,13 @@ const getItems = async (): Promise<ScriptFilterItem[]> => {
   return Promise.resolve(scriptFilterItems);
 };
 
-const items = await getItems();
-
-alfy.output(alfy.inputMatches(items, 'title'));
+if (KEY === '' || URL === '') {
+  alfy.error('Missing environment variables.');
+} else {
+  const items = await getItems();
+  if (items === null) {
+    alfy.error('Something went wrong.');
+  } else {
+    alfy.output(alfy.inputMatches(items, 'title'));
+  }
+}

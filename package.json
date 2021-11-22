@@ -1,9 +1,9 @@
 {
-  "name": "alfred-workflow-satispress",
-  "version": "0.0.1",
-  "description": "My primo module",
+  "name": "alfred-satispress",
+  "version": "1.0.0",
+  "description": "Satispress for Alfred",
   "license": "MIT",
-  "repository": "",
+  "repository": "wwwoda/alfred-satispress",
   "author": {
     "name": "David Mondok",
     "email": "david@woda.at",
@@ -14,9 +14,9 @@
   },
   "type": "module",
   "scripts": {
-    "test": "xo && ava",
     "postinstall": "alfy-init",
     "preuninstall": "alfy-cleanup",
+    "test": "xo index.js --fix",
     "tsc": "tsc -p tsconfig.json",
     "watch": "tsc -p tsconfig.json --watch"
   },
@@ -52,5 +52,11 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "typescript": "^4.5.0-beta",
     "xo": "^0.46.4"
+  },
+  "xo": {
+    "rules": {
+      "node/prefer-global/buffer": "off",
+      "node/prefer-global/process": "off"
+    }
   }
 }
