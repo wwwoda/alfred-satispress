@@ -1,0 +1,8 @@
+.vscode/
+node_modules/
+src/**/*
+.editorconfig
+.eslintignore
+.eslintrc.cjs
+package-lock.json
+tsconfig.json
