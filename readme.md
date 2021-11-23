@@ -4,7 +4,7 @@
 
 ## Install
 
-```
+```bash
 $ npm install --global alfred-satispress
 ```
 
@@ -18,11 +18,12 @@ $ npm install --global alfred-satispress
 
 You'll find all these on the SatisPress settings page
 
-| name   | value                      |
-| ------ | -------------------------- |
-| key    | API Key                    |
-| url    | package.json URL           |
-| vendor | Custom Vendor *(optional)* |
+| name   | value                                                        |
+| ------ | ------------------------------------------------------------ |
+| cmd    | "1" to copy composer require command instead of package name |
+| key    | API Key                                                      |
+| url    | package.json URL                                             |
+| vendor | Custom Vendor *(optional)*                                   |
 
 ## License
 

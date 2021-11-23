@@ -2,9 +2,10 @@ import alfy, { CacheConf, ScriptFilterItem } from 'alfy';
 import got from 'got';
 import sortOn from 'sort-on';
 
-const KEY = process.env.key || '';
-const URL = process.env.url || '';
-const VENDOR = process.env.vendor || 'satispress';
+const KEY = process.env.key?.trim() || '';
+const URL = process.env.url?.trim() || '';
+const VENDOR = process.env.vendor?.trim() || 'satispress';
+const CMD = process.env.cmd?.trim() ? 'composer require ' : '';
 
 export interface SatispressResponse {
   packages: Record<string, Record<string, { description : string }>>;
@@ -18,7 +19,6 @@ type Cache = CacheConf<{
 export const cache = alfy.cache as Cache;
 
 const CACHE_KEY_RESPONSE = 'satispressResponse';
-const CACHE_KEY_ITEMS = 'satispressItems';
 const CACHE_OPTIONS = { maxAge: 60 * 60000 }; // minutes to milliseconds
 
 const fetch = async (): Promise<SatispressResponse | false > => {
@@ -45,12 +45,6 @@ const fetch = async (): Promise<SatispressResponse | false > => {
 };
 
 const getItems = async (): Promise<ScriptFilterItem[] | null> => {
-  const cachedItems = cache.get(CACHE_KEY_ITEMS, []);
-
-  if (cachedItems && cachedItems.length) {
-    return cachedItems;
-  }
-
   const data = await fetch();
 
   if (data === false) {
@@ -63,19 +57,20 @@ const getItems = async (): Promise<ScriptFilterItem[] | null> => {
     return {
       title: key.replace(`${VENDOR}/`, ''),
       subtitle: data.packages[key][latestVersion].description,
-      arg: key,
+      arg: `${CMD}${key}`,
     };
   }), 'title');
-
-  cache.set(CACHE_KEY_ITEMS, scriptFilterItems, CACHE_OPTIONS);
 
   return Promise.resolve(scriptFilterItems);
 };
 
-if (KEY === '' || URL === '') {
-  alfy.error('Missing environment variables.');
+if (KEY === '') {
+  alfy.error('Add missing API key to environment variables!');
+} else if (URL === '') {
+  alfy.error('Add missing URL to environment variables! (e.g. https://example.com/satispress/packages.json)');
 } else {
   const items = await getItems();
+
   if (items === null) {
     alfy.error('Something went wrong.');
   } else {
