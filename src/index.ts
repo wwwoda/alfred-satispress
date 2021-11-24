@@ -12,43 +12,31 @@ export interface SatispressResponse {
 }
 
 type Cache = CacheConf<{
-  response: SatispressResponse | null;
+  packages: SatispressResponse | null;
   progress: string;
   fetching: boolean;
 }>;
 
 export const cache = alfy.cache as Cache;
 
-const CACHE_KEY_RESPONSE = 'response';
-const CACHE_KEY_PROGRESS = 'progress';
+const CACHE_KEY_RESPONSE = 'packages';
 const CACHE_KEY_FETCHING = 'fetching';
 const CACHE_OPTIONS = { maxAge: 60 * 60000 }; // minutes to milliseconds
 
-const updatePackagesCache = async (): Promise<SatispressResponse | false > => {
-  const cachedResponse = cache.get(CACHE_KEY_RESPONSE, { packages: {} });
-
-  if (cachedResponse) {
-    cache.set(CACHE_KEY_RESPONSE, cachedResponse, CACHE_OPTIONS);
-    return Promise.resolve(cachedResponse);
-  }
-
-  cache.set(CACHE_KEY_FETCHING, true);
-
-  const response: SatispressResponse = await got.get(URL, {
+const updatePackagesCache = async () => {
+  got.get(URL, {
     headers: {
       Authorization: `Basic ${Buffer.from(`${KEY}:satispress`).toString('base64')}`,
     },
-  }).json();
-
-  cache.set(CACHE_KEY_FETCHING, false);
-
-  if (!response) {
-    return Promise.resolve(false);
-  }
-
-  cache.set(CACHE_KEY_RESPONSE, response, CACHE_OPTIONS);
-
-  return Promise.resolve(response);
+  })
+    .json()
+    .then((response) => {
+      cache.set(CACHE_KEY_RESPONSE, response, CACHE_OPTIONS);
+      cache.set(CACHE_KEY_FETCHING, false);
+    })
+    .catch((reason) => {
+      console.log(reason);
+    });
 };
 
 const getPackages = (): ScriptFilterItem[] => {
@@ -70,25 +58,6 @@ const getPackages = (): ScriptFilterItem[] => {
   }), 'title');
 };
 
-const getProgress = (): ScriptFilterItem[] => {
-  let progress = alfy.cache.get(CACHE_KEY_PROGRESS, '');
-
-  if (!progress) {
-    progress = '.';
-  } else if (progress.length === 3) {
-    progress = '.';
-  } else {
-    progress += '.';
-  }
-
-  alfy.cache.set(CACHE_KEY_PROGRESS, progress);
-
-  return [{
-    title: 'Loading packages',
-    subtitle: `${progress}`,
-  }];
-};
-
 const main = (): void => {
   if (KEY === '') {
     alfy.error('Add missing API key to environment variables!');
@@ -107,10 +76,13 @@ const main = (): void => {
     return;
   }
 
-  alfy.output(getProgress(), { rerunInterval: 1 });
+  alfy.output([{
+    title: 'Loading packages',
+  }], { rerunInterval: 1 });
 
   if (cache.get(CACHE_KEY_FETCHING, false) !== true) {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    cache.set(CACHE_KEY_FETCHING, true);
     updatePackagesCache();
   }
 };
