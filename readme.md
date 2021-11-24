@@ -18,12 +18,12 @@ $ npm install --global alfred-satispress
 
 You'll find all these on the SatisPress settings page
 
-| name   | value                                                        |
-| ------ | ------------------------------------------------------------ |
-| cmd    | "1" to copy composer require command instead of package name |
-| key    | API Key                                                      |
-| url    | package.json URL                                             |
-| vendor | Custom Vendor *(optional)*                                   |
+| name    | value                                                                            |
+| ------- | -------------------------------------------------------------------------------- |
+| require | empty: workflow copies package name, 1: workflow copies composer require command |
+| key     | API Key                                                                          |
+| url     | package.json URL                                                                 |
+| vendor  | Custom Vendor *(optional)*                                                       |
 
 ## License
 
